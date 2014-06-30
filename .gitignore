@@ -1,0 +1,16 @@
+/doc
+.classpath
+.project
+/dist
+/bin
+forearm.log
+.scala_dependencies
+.metadata/
+target/
+lib_managed/
+src_managed/
+project/boot/
+*.iml
+.cache
+.settings/
+*.log.gz
