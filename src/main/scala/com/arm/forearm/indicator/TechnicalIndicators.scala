@@ -58,16 +58,21 @@ case class RSI(periods: Int) extends TechnicalIndicator {
   private def calcRSI(candles: Vector[Candle]): Double = {
     if (candles.size < periods) 0.0
     else {
-      val sma = SMA(periods)
-      val avgGain = sma.evalDouble(candles.map(c => max(0, (c.close - c.open))))
-      val avgLoss = sma.evalDouble(candles.map(c => max(0, (c.open - c.close))))
+      val initialAvgGain: Double = (0.0 /: candles.take(periods).map(gain(_)))(_+_) / periods
+      val initialAvgLoss: Double = (0.0 /: candles.take(periods).map(loss(_)))(_+_) / periods
       
-      100 - (100 / (1 + (avgGain / avgLoss)))
+      val aGain = (initialAvgGain /: candles.drop(periods))((prev, candle) => ((prev * (periods - 1)) + gain(candle)) / periods)
+      val aLoss = (initialAvgLoss /: candles.drop(periods))((prev, candle) => ((prev * (periods - 1)) + loss(candle)) / periods)
+      
+      100 - (100 / (1 + (aGain / aLoss)))
     }
   }
 
   def eval(candles: Vector[Candle]): Double = {
     if (candles.size < periods) 0.0
-    else calcRSI(candles.takeRight(periods))
+    else calcRSI(candles)
   }
+  
+  private def gain(candle: Candle): Double = max(0, candle.close - candle.open)
+  private def loss(candle: Candle): Double = max(0, candle.open - candle.close)
 }

@@ -76,8 +76,6 @@ case class OandaAgent(val id: String, val token: String) extends FXLiveAgent {
       case OneDay => "D"
     }
     
-    // Retrieve one more than asked for since the last candle will always be the "dancing candle" that will muck up 
-    // the calculations, so we'll drop it before returning it.
     val svc = apiHost / "v1" / "candles"  <:< Map("Authorization" -> ("Bearer " + token)) <<? 
         Map("instrument" -> pair.toString) <<? 
         Map("granularity" -> granularity) <<?
@@ -109,7 +107,6 @@ case class OandaAgent(val id: String, val token: String) extends FXLiveAgent {
     val response = r()
     response.getStatusCode match {
       case 200 => {
-    	// Parse the JSON 
         val json = response.getResponseBody
     	val orderList: Option[OandaTradeList] = Parse.decodeOption[OandaTradeList](json)
     	orderList match {
@@ -148,7 +145,7 @@ case class OandaAgent(val id: String, val token: String) extends FXLiveAgent {
 
   override def close(tradeId: Option[String]): Double = {
     tradeId match {
-      case None => return 0.0 // Do nothing
+      case None => return 0.0 
       case Some(tid) => {
     	val svc = apiHost / "v1" / "accounts" / id / "trades" / tid <:< Map("Authorization" -> ("Bearer " + token))
         val r = Http(svc DELETE)
@@ -171,7 +168,6 @@ case class OandaAgent(val id: String, val token: String) extends FXLiveAgent {
   }
   
   override def execute(pair: ForexPair, orderType: OrderType, units: Long, stopLoss: Double, takeProfit: Double): Option[Long] = {
-    // Remember that the << operators automatically converts this to a POST call
     quote(pair) match {
       case None => log.error(s"Failed to retrieve a quote for $pair!  No order placed!")
       case Some(quote) => {
@@ -196,7 +192,7 @@ case class OandaAgent(val id: String, val token: String) extends FXLiveAgent {
 	      val r = Http(svc)
 	      val response = r()
 	      response.getStatusCode match {
-	        case 200 => // Success, you can skip this.
+	        case 200 => // Success, no need to do anything else
           case code: Int => log.error(s"Failed to execute an order, HTTP Code: $code\n\t${response.getResponseBody}")
 	      }
       }

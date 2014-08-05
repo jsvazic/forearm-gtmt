@@ -4,7 +4,7 @@
 package com.arm.forearm
 
 /**
- * Base class contianing all constants that can be manipulated for the program.
+ * Base class containing all constants that can be manipulated for the program.
  */
 object ForearmSettings {
   // Oanda Settings
@@ -12,7 +12,7 @@ object ForearmSettings {
   val API_TOKEN  = "" // TODO: Specify the Oanda API Token here
 
   // Generic settings
-  val PAIR = "NZD/USD"
+  val PAIRS = List[ForexPair](ForexPair("NZD/USD"))
   val INTERVAL = ThirtyMinutes
   
   // Technical Indicator Settings
@@ -20,11 +20,11 @@ object ForearmSettings {
   val SMA_PERIODS = 19
   val RSI_PERIODS = 9
   val MOVING_AVERAGE_MIN_DELTA = 3.0
-  val MIN_RSI_VALUE = 30.0  
-  val MAX_RSI_VALUE = 70.0
+  val MIN_RSI_VALUE = 20.0  
+  val MAX_RSI_VALUE = 80.0
 
   // Order settings
   val ORDER_UNIT_SIZE = 20000
-  val SL_PIPS = 30.0  
-  val TP_PIPS = 60.0  
+  val SL_PIPS = 30.0
+  val TP_PIPS = 60.0
 }

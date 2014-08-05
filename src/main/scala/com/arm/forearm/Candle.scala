@@ -1,5 +1,5 @@
 /**
- * Copyright (c) John Svazic, 2008-2014 - All Rights Reserved 
+ * Copyright (c) John Svazic, 2008-2014 - All Rights Reserved
  */
 package com.arm.forearm
 
@@ -20,7 +20,7 @@ case class Candle(timestamp: Long, open: Double, high: Double, low: Double, clos
   require(close > 0.0)
   require(high >= open && high >= close && high >= low)
   require(low <= open && low <= high && low <= close)
-  
+
   override def toString() = {
     val fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm")
     s"Candle(${fmt.print(new DateTime(timestamp))}, O:$open, H:$high, L:$low, C:$close)"

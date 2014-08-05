@@ -26,7 +26,7 @@ object ForearmMain extends App {
   } catch {
     case t: Throwable => log.error("Caught a top-level exception!", t)
   }
-  
+
   private def scheduleBuilder(interval: Interval) = interval match {
     case OneMinute => "0 0/1 * ? * *"
     case FiveMinutes => "0 0/5 * ? * *"
@@ -39,17 +39,17 @@ object ForearmMain extends App {
 
   private def runLive() {
     val agent = OandaAgent(ForearmSettings.ACCOUNT_ID, ForearmSettings.API_TOKEN)
-    val pair = new ForexPair(ForearmSettings.PAIR)
-    val evalInterval = ForearmSettings.INTERVAL
-    val trainingInterval = ForearmSettings.INTERVAL
-    val cronSched = scheduleBuilder(evalInterval)
-
+    
+    var lastActions = Map[ForexPair, Action]()
+    for (pair <- ForearmSettings.PAIRS) {
+      lastActions += (pair -> agent.lastAction(pair))
+    }
+    
     val jobDataMap = new JobDataMap
     jobDataMap.put("fx.agent", agent)
-    jobDataMap.put("fx.pair", pair)
-    jobDataMap.put("fx.eval.interval", evalInterval)
-    jobDataMap.put("fx.training.interval", trainingInterval)
-    jobDataMap.put("fx.last.action", agent.lastAction(pair))
+    jobDataMap.put("fx.pairs", ForearmSettings.PAIRS)
+    jobDataMap.put("fx.interval", ForearmSettings.INTERVAL)
+    jobDataMap.put("fx.last.actions", lastActions)
 
     val forearmJob = newJob(classOf[ForearmJob])
       .withIdentity("forearmJob", "mainGroup")
@@ -58,7 +58,7 @@ object ForearmMain extends App {
 
     val trigger = newTrigger
       .withIdentity("forearmTrigger", "mainGroup")
-      .withSchedule(cronSchedule(cronSched))
+      .withSchedule(cronSchedule(scheduleBuilder(ForearmSettings.INTERVAL)))
       .build
 
     val scheduler = StdSchedulerFactory.getDefaultScheduler

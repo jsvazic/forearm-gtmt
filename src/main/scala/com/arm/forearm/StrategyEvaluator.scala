@@ -23,10 +23,13 @@ object StrategyEvaluator {
   private val slPips = ForearmSettings.SL_PIPS
   private val tpPips = ForearmSettings.TP_PIPS
   private val nf = NumberFormat.getNumberInstance
+  private val maNF = NumberFormat.getNumberInstance
   private val log = LoggerFactory.getLogger(classOf[StrategyEvaluator])
 
   nf.setMinimumFractionDigits(2)
   nf.setMaximumFractionDigits(2)
+  maNF.setMinimumFractionDigits(5)
+  maNF.setMaximumFractionDigits(5)
   
   def evaluate(client: FXLiveAgent,
                pair: ForexPair, 
@@ -43,13 +46,29 @@ object StrategyEvaluator {
     val slowVal = slow.eval(candles)
     val rsiVal = rsi.eval(candles)
     val delta = abs(fastVal - slowVal) * pair.multiplier
-    log.info(s"\nDetermining action based on:" + 
+    
+    // Close any open orders based on the last candle value.
+    /*
+    val earlyClosePL: Double = lastAction match {
+      case Buy if (candle.close < slowVal) => client.openOrder(pair) match {
+        case Some(order) => client.close(order.id)
+        case _ => 0.0
+      }
+      case Sell if (candle.close > slowVal) => client.openOrder(pair) match {
+        case Some(order) => client.close(order.id)
+        case _ => 0.0
+      }
+      case _ => 0.0
+    }
+    */
+    
+    log.info(s"\nDetermining action for ${pair.toString} based on:" + 
         s"\n\t${candle.toString}" +
-        s"\n\t${fast.toString} = ${fastVal}" +
-        s"\n\t${slow.toString} = ${slowVal}" +
+        s"\n\t${fast.toString} = ${maNF.format(fastVal)}" +
+        s"\n\t${slow.toString} = ${maNF.format(slowVal)}" +
         (if (fastVal > slowVal) "\n\tfast > slow" else "\n\tfast < slow") +
-        s"\n\tDelta: ${nf.format(delta)} >= $minDelta -> ${delta >= minDelta}" +
-        s"\n\tRSI  : " + (if (fastVal > slowVal) s"50.0 < $rsiVal < $maxRSI" else s"$minRSI < $rsiVal < 50.0"))
+        s"\n\tDelta: ${maNF.format(delta)} >= $minDelta -> ${delta >= minDelta}" +
+        s"\n\tRSI  : " + (if (fastVal > slowVal) s"50.0 < ${nf.format(rsiVal)} < $maxRSI" else s"$minRSI < ${nf.format(rsiVal)} < 50.0"))
         
     val action = determineAction(pair, candle, fastVal, slowVal, rsiVal)
     log.info(s"\n\tDetermined action: $action\n")

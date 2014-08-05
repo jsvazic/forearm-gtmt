@@ -1,5 +1,5 @@
 /**
- * Copyright (c) John Svazic, 2008-2014 - All Rights Reserved 
+ * Copyright (c) John Svazic, 2008-2014 - All Rights Reserved
  */
 package com.arm.forearm
 
@@ -13,7 +13,7 @@ trait OrderLike {
   val units: Long
   val sl: Double
   val tp: Double
-  
+
   def id(): Option[String] = None
 }
 
@@ -24,28 +24,28 @@ class Order(private val pendingOrder: PendingOrder, private val _id: String, val
   val leverage = pendingOrder.leverage
   val sl = pendingOrder.sl
   val tp = pendingOrder.tp
-  
+
   override def id(): Option[String] = Some(_id)
-  
+
   val slPrice = orderType match {
-    case LongOrder=> 
-      if (pendingOrder.sl > 0.0) 
-        price - (pendingOrder.sl / pendingOrder.pair.multiplier) 
-      else 
+    case LongOrder =>
+      if (pendingOrder.sl > 0.0)
+        price - (pendingOrder.sl / pendingOrder.pair.multiplier)
+      else
         0.0
-    case ShortOrder=> 
-      if (pendingOrder.sl > 0.0) 
-        price + (pendingOrder.sl / pendingOrder.pair.multiplier) 
-      else 
+    case ShortOrder =>
+      if (pendingOrder.sl > 0.0)
+        price + (pendingOrder.sl / pendingOrder.pair.multiplier)
+      else
         0.0
   }
-  
+
   val tpPrice = orderType match {
-    case LongOrder=> 
-      if (pendingOrder.tp > 0.0) price + (pendingOrder.tp / pendingOrder.pair.multiplier) 
+    case LongOrder =>
+      if (pendingOrder.tp > 0.0) price + (pendingOrder.tp / pendingOrder.pair.multiplier)
       else 0.0
-    case ShortOrder=> 
-      if (pendingOrder.tp > 0.0) price - (pendingOrder.tp / pendingOrder.pair.multiplier) 
+    case ShortOrder =>
+      if (pendingOrder.tp > 0.0) price - (pendingOrder.tp / pendingOrder.pair.multiplier)
       else 0.0
   }
 }
@@ -54,7 +54,7 @@ object Order {
   def apply(pendingOrder: PendingOrder, id: String, timestamp: Long, price: Double) = {
     new Order(pendingOrder, id, timestamp, price)
   }
-  
+
   def calculatePL(order: Order, close: Double): Double = {
     if (order.orderType == LongOrder) (close - order.price) * order.units
     else (order.price - close) * order.units
@@ -68,5 +68,5 @@ object Order {
 
 case class PendingOrder(val orderType: OrderType, val pair: ForexPair, val leverage: Int, val units: Long, val sl: Double, val tp: Double) extends OrderLike
 
-case class TrainingOrder(private val pendingOrder: PendingOrder, private val _id: String, override val price: Double) 
-	extends Order(pendingOrder, _id, System.currentTimeMillis, price)
+case class TrainingOrder(private val pendingOrder: PendingOrder, private val _id: String, override val price: Double)
+  extends Order(pendingOrder, _id, System.currentTimeMillis, price)

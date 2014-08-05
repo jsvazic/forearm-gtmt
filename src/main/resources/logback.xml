@@ -13,8 +13,8 @@
 			<!-- daily rollover -->
 			<fileNamePattern>forearm.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
 
-			<!-- keep 90 days' worth of history -->
-			<maxHistory>90</maxHistory>
+			<!-- keep 14 days' worth of history -->
+			<maxHistory>14</maxHistory>
 		</rollingPolicy>
 		<encoder>
 			<pattern>%d [%level] %logger{100} - %msg %n</pattern>

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) John Svazic, 2008-2014 - All Rights Reserved 
+ * Copyright (c) John Svazic, 2008-2014 - All Rights Reserved
  */
 package com.arm.forearm
 
@@ -24,24 +24,12 @@ trait FXAgent {
   def openOrder(pair: ForexPair): Option[OrderLike]
   def spread(pair: ForexPair): Double
 
-  /**
-   * Try to find the number of available units for the given pair.
-   *
-   * @see http://fxtrade.oanda.com/account/units-calculator
-   */
   def getMaxAvailableUnits(pair: ForexPair, price: Double): Long = {
     round(floor((balance * leverage.toDouble) / price))
   }
-  
-  /**
-   * Method to retrieve the last action for the given pair.  If an order for the given pair is found, then
-   * Buy is returned if it is a Long order, otherwise Sell is returned.  If no order is found, then Stay
-   * is returned.
-   * 
-   * @param The last action for the given pair, one of Buy, Sell or Stay depending if a matching order is found.
-   */
+
   def lastAction(pair: ForexPair) = {
-	openOrder(pair) match {
+    openOrder(pair) match {
       case Some(o) => o.orderType match {
         case LongOrder => Buy
         case ShortOrder => Sell
